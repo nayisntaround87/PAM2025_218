@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ChillBeads</string>
+
+    <!-- Generic Actions -->
+    <string name="login">Login</string>
+    <string name="logout">Logout</string>
+    <string name="save">Simpan</string>
+    <string name="update">Update</string>
+    <string name="delete">Hapus</string>
+    <string name="cancel">Batal</string>
+
+    <!-- Form Labels & Hints -->
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="product_name">Nama Produk</string>
+    <string name="price">Harga</string>
+    <string name="stock">Stok</string>
+    <string name="description">Deskripsi</string>
+    <string name="search_product_hint">Cari Produk…</string>
+
+    <!-- Screen Titles -->
+    <string name="login_screen_title">Login to ChillBeads</string>
+    <string name="dashboard_welcome">Welcome to the Dashboard!</string>
+    <string name="product_list">Daftar Produk</string>
+    <string name="add_product">Tambah Produk</string>
+    <string name="edit_product">Edit Produk</string>
+
+    <!-- Product Details & Dialogs -->
+    <string name="product_price_label">Harga: Rp %1$d</string>
+    <string name="product_stock_label">Stok: %1$d</string>
+    <string name="delete_product_confirmation_title">Hapus Produk</string>
+    <string name="delete_product_confirmation_message">Apakah Anda yakin ingin menghapus produk \'%1$s\'?</string>
+    <string name="product_not_found">Produk tidak ditemukan!</string>
+
+</resources>
