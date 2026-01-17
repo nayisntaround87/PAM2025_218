@@ -8,24 +8,30 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.outlined.Category
+import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.SearchOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -40,7 +46,7 @@ import com.example.chillbeads.viewmodel.ProductOperationState
 import com.example.chillbeads.viewmodel.ProductViewModel
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun ProductListScreen(
     onAddProduct: () -> Unit,
@@ -52,11 +58,13 @@ fun ProductListScreen(
 ) {
     val filteredProducts by productViewModel.filteredProducts
     val operationState by productViewModel.operationState.collectAsState()
-    
+    val searchQuery by productViewModel.searchQuery
+    val keyboardController = LocalSoftwareKeyboardController.current
+
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val isLoading = operationState is ProductOperationState.Loading
-    
+
     var productToDelete by remember { mutableStateOf<Product?>(null) }
 
     LaunchedEffect(operationState) {
@@ -110,32 +118,46 @@ fun ProductListScreen(
             }
         }
     ) { paddingValues ->
-        Box(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
-            if (filteredProducts.isEmpty() && !isLoading) {
-                EmptyStateView()
-            } else {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 80.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    items(filteredProducts, key = { it.id ?: "" }) { product ->
-                        ProductListItem(
-                            product = product,
-                            onClick = { product.id?.let(onProductClick) },
-                            onDeleteClick = { productToDelete = product }
-                        )
+        Column(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = { productViewModel.onSearchQueryChanged(it) },
+                label = { Text(stringResource(R.string.search_product_hint)) },
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+                leadingIcon = { Icon(Icons.Outlined.Search, contentDescription = null) },
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                keyboardActions = KeyboardActions(onSearch = {
+                    keyboardController?.hide()
+                })
+            )
+
+            Box(modifier = Modifier.fillMaxSize()) {
+                if (filteredProducts.isEmpty() && !isLoading) {
+                    EmptyStateView()
+                } else {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 80.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        items(filteredProducts, key = { it.id ?: "" }) { product ->
+                            ProductListItem(
+                                product = product,
+                                onClick = { product.id?.let(onProductClick) },
+                                onDeleteClick = { productToDelete = product }
+                            )
+                        }
                     }
                 }
-            }
 
-            if (isLoading) {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = Color.Black.copy(alpha = 0.3f)
-                ) {
-                    Box(contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator()
+                if (isLoading) {
+                    Surface(
+                        modifier = Modifier.fillMaxSize(),
+                        color = Color.Black.copy(alpha = 0.3f)
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            CircularProgressIndicator()
+                        }
                     }
                 }
             }

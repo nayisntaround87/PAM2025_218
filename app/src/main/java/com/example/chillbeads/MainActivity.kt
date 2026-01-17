@@ -60,8 +60,7 @@ fun AppNavigation() {
         composable("dashboard") {
             DashboardScreen(
                 onLogout = { authViewModel.logout() },
-                onNavigateToProductList = { navController.navigate("productList") },
-                productViewModel = productViewModel
+                onNavigateToProductList = { navController.navigate("productList") }
             )
         }
         composable("productList") {

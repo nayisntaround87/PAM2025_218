@@ -7,7 +7,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.example.chillbeads.model.Product
 import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.firestore.ktx.toObjects
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -47,7 +46,9 @@ class ProductViewModel : ViewModel() {
                 Log.w("ProductViewModel", "Listen failed.", error)
                 return@addSnapshotListener
             }
-            _products.value = snapshot?.toObjects() ?: emptyList()
+            _products.value = snapshot?.documents?.mapNotNull {
+                it.toObject(Product::class.java)?.copy(id = it.id)
+            } ?: emptyList()
         }
     }
 
@@ -55,9 +56,7 @@ class ProductViewModel : ViewModel() {
         _operationState.value = ProductOperationState.Loading
         val newProduct = Product(name = name, price = price, stock = stock, description = description, photoUrl = if (photoUrl.isNullOrBlank()) null else photoUrl)
         productsCollection.add(newProduct)
-            .addOnSuccessListener { documentReference ->
-                val productWithId = newProduct.copy(id = documentReference.id)
-                _products.value = _products.value + productWithId
+            .addOnSuccessListener { 
                 _operationState.value = ProductOperationState.Success("Produk berhasil ditambahkan!") 
             }
             .addOnFailureListener { _operationState.value = ProductOperationState.Error("Gagal menambahkan produk") }
@@ -68,10 +67,6 @@ class ProductViewModel : ViewModel() {
         val updatedData = mapOf("name" to name, "price" to price, "stock" to stock, "description" to description, "photoUrl" to (if (photoUrl.isNullOrBlank()) null else photoUrl))
         productsCollection.document(id).update(updatedData)
             .addOnSuccessListener { 
-                val updatedList = _products.value.map { product ->
-                    if (product.id == id) product.copy(name = name, price = price, stock = stock, description = description, photoUrl = photoUrl) else product
-                }
-                _products.value = updatedList
                 _operationState.value = ProductOperationState.Success("Produk berhasil diperbarui!") 
             }
             .addOnFailureListener { _operationState.value = ProductOperationState.Error("Gagal memperbarui produk") }
@@ -81,7 +76,6 @@ class ProductViewModel : ViewModel() {
         _operationState.value = ProductOperationState.Loading
         productsCollection.document(id).delete()
             .addOnSuccessListener { 
-                _products.value = _products.value.filter { it.id != id }
                 _operationState.value = ProductOperationState.Success("") 
             }
             .addOnFailureListener { _operationState.value = ProductOperationState.Error("Gagal menghapus produk") }

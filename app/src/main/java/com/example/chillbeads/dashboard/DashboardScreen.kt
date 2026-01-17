@@ -1,42 +1,45 @@
 package com.example.chillbeads.dashboard
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ListAlt
 import androidx.compose.material.icons.outlined.Logout
-import androidx.compose.material.icons.outlined.Search
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.chillbeads.R
 import com.example.chillbeads.ui.theme.ChillBeadsTheme
-import com.example.chillbeads.viewmodel.ProductViewModel
 
-@OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DashboardScreen(
     onLogout: () -> Unit,
-    onNavigateToProductList: () -> Unit,
-    productViewModel: ProductViewModel = viewModel()
+    onNavigateToProductList: () -> Unit
 ) {
-    val searchQuery by productViewModel.searchQuery
-    val keyboardController = LocalSoftwareKeyboardController.current
-
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
@@ -51,33 +54,17 @@ fun DashboardScreen(
             Text("Admin Dashboard", fontSize = 32.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
             Spacer(modifier = Modifier.height(8.dp))
             Text(stringResource(R.string.dashboard_welcome), fontSize = 16.sp, color = MaterialTheme.colorScheme.onBackground)
-            
+
             Spacer(modifier = Modifier.height(48.dp))
-
-            // Kolom Pencarian Baru
-            OutlinedTextField(
-                value = searchQuery,
-                onValueChange = { productViewModel.onSearchQueryChanged(it) },
-                label = { Text(stringResource(R.string.search_product_hint)) },
-                modifier = Modifier.fillMaxWidth(),
-                leadingIcon = { Icon(Icons.Outlined.Search, contentDescription = null) },
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-                keyboardActions = KeyboardActions(onSearch = {
-                    keyboardController?.hide()
-                    onNavigateToProductList()
-                })
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
 
             DashboardMenuItem(
                 icon = Icons.Outlined.ListAlt,
                 text = stringResource(R.string.product_list),
                 onClick = onNavigateToProductList
             )
-            
+
             Spacer(modifier = Modifier.height(16.dp))
-            
+
             DashboardMenuItem(
                 icon = Icons.Outlined.Logout,
                 text = stringResource(R.string.logout),
